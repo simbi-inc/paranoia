@@ -2,6 +2,7 @@ require 'active_record' unless defined? ActiveRecord
 
 module Paranoia
   @@default_sentinel_value = nil
+  @@default_update_timestamps = true
 
   # Change default_sentinel_value in a rails initializer
   def self.default_sentinel_value=(val)
@@ -10,6 +11,10 @@ module Paranoia
 
   def self.default_sentinel_value
     @@default_sentinel_value
+  end
+
+  def self.default_update_timestamps
+    @@default_update_timestamps
   end
 
   def self.included(klazz)
@@ -180,13 +185,13 @@ module Paranoia
   def paranoia_restore_attributes
     {
       paranoia_column => paranoia_sentinel_value
-    }.merge(timestamp_attributes_with_current_time)
+    }.merge(Paranoia.default_update_timestamps ? timestamp_attributes_with_current_time : {})
   end
 
   def paranoia_destroy_attributes
     {
       paranoia_column => current_time_from_proper_timezone
-    }.merge(timestamp_attributes_with_current_time)
+    }.merge(Paranoia.default_update_timestamps ? timestamp_attributes_with_current_time : {})
   end
 
   def timestamp_attributes_with_current_time
@@ -313,7 +318,7 @@ module ActiveRecord
     class UniquenessValidator < ActiveModel::EachValidator
       prepend UniquenessParanoiaValidator
     end
-    
+
     class AssociationNotSoftDestroyedValidator < ActiveModel::EachValidator
       def validate_each(record, attribute, value)
         # if association is soft destroyed, add an error
