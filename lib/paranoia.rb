@@ -1,8 +1,8 @@
 require 'active_record' unless defined? ActiveRecord
 
 module Paranoia
+  mattr_accessor :default_update_timestamps
   @@default_sentinel_value = nil
-  @@default_update_timestamps = true
 
   # Change default_sentinel_value in a rails initializer
   def self.default_sentinel_value=(val)
@@ -11,10 +11,6 @@ module Paranoia
 
   def self.default_sentinel_value
     @@default_sentinel_value
-  end
-
-  def self.default_update_timestamps
-    @@default_update_timestamps
   end
 
   def self.included(klazz)
